@@ -31,9 +31,34 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
                     <div class="navbar-nav mr-auto">
-                        {{ render_nav_item('simple_pages.about','About') }}
                         {{ render_nav_item('simple_pages.index','Welcome') }}
+                        {{ render_nav_item('simple_pages.about','About') }}
+                        {% if current_user.is_authenticated %}
+                            <a class="nav-item nav-link" href="{{ url_for("auth.retrieve_user", user_id= current_user.id) }}">My Profile</a>
+                            {% if current_user.is_admin %}
+                                {{ render_nav_item('auth.browse_users','User Management' ) }}
+                            {% endif %}
+                        {% endif %}
                     </div>
+                </div>
+                <div class="navbar-nav d-flex">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                My Account
+                            </a>
+                            <ul class="dropdown-menu " aria-labelledby="navbarDarkDropdownMenuLink">
+                                <li><a class="dropdown-item" href="{{ url_for("auth.edit_profile") }}">Manage Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for("auth.edit_account") }}">Manage Account</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for("auth.logout") }}">Logout</a></li>
+                            </ul>
+                            </ul>
+                        </li>
+                    {% else %}
+                        {{ render_nav_item('auth.register','Register' ) }}
+                        {{ render_nav_item('auth.login','Login' ) }}
+                    {% endif %}
                 </div>
             </nav>
         </header>

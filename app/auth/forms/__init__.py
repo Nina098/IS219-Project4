@@ -15,14 +15,14 @@ class RegisterForm(FlaskForm):
     email = EmailField('Email Address', [
         validators.DataRequired(),
 
-    ], description="You need to signup with an email")
+    ])
 
     password = PasswordField('Create Password', [
         validators.DataRequired(),
         validators.length(min=6, max=35),
         validators.EqualTo('confirm', message='Passwords must match'),
 
-    ], description="Create a password ")
+    ], description="Create a password")
     confirm = PasswordField('Repeat Password', description="Please retype your password to confirm it is correct")
     submit = SubmitField()
 
@@ -57,3 +57,18 @@ class RegisterForm(FlaskForm):
             for e in errors:
                 error_string = error_string + e
             raise ValidationError(error_string)
+
+
+class ProfileForm(FlaskForm):
+    about = TextAreaField('About', [validators.length(min=6, max=300)],
+                          description="Please add information about yourself")
+
+    submit = SubmitField()
+
+
+class UserEditForm(FlaskForm):
+    about = TextAreaField('About', [validators.length(min=6, max=300)],
+                          description="Please add information about yourself")
+    is_admin = BooleanField('Admin', render_kw={'value':'1'})
+    submit = SubmitField()
+
