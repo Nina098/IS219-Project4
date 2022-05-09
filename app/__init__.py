@@ -43,7 +43,7 @@ def create_app():
     app.register_blueprint(auth.auth)
     app.register_error_handler(404, page_not_found)
     app.register_error_handler(401, access_denied)
-    app.register_error_handler(403, acced_denied_admin)
+    app.register_error_handler(403, access_denied_admin)
     db_dir = "database/db.sqlite"
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.abspath(db_dir)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
