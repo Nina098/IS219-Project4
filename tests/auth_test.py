@@ -1,4 +1,3 @@
-from app.auth.forms import *
 from app.db.models import User
 from flask import session
 import pytest
@@ -37,6 +36,14 @@ def test_login(client):
         assert session['_user_id'] == user_id
 
 
+def test_bad_login(client):
+    assert client.get("/login").status_code == 200
+    response = client.post("/login",
+                           data={"email": "EmailNotInDatabase@mail.com", "password": "PasswordNotInDatabase123"})
+    # User should be redirected back to the login after failing to log in
+    assert "/login" == response.headers["Location"]
+
+
 @pytest.mark.parametrize(
     ("password", "confirm"),
     (
@@ -55,8 +62,8 @@ def test_login(client):
 def test_bad_register(client, password, confirm):
     with client:
         # attempt to register a password that a custom validator would invalidate
-        response = client.post("/register",
-                               data={"email": "bad@mail.com", "password": password, "confirm": confirm})
+        assert client.post("/register",
+                           data={"email": "bad@mail.com", "password": password, "confirm": confirm}).status_code == 200
         with client.application.app_context():
             # a new entry should not have been created
             assert User.query.filter_by(email="bad@mail.com").first() is None
@@ -74,6 +81,35 @@ def test_register_matching_passwords(client):
 def test_already_registered(client):
     with client:
         assert client.get("/register").status_code == 200
-        response = client.post("/register", data={"email": "admin@mail.com", "password": "Test123", "confirm": "Test123"})
+        response = client.post("/register",
+                               data={"email": "admin@mail.com", "password": "Test123", "confirm": "Test123"})
         # The user should now be redirected back to the registration
         assert "/login" == response.headers["Location"]
+
+
+def test_navbar(client):
+    response = client.get("/")
+    assert b'href="/register"' in response.data
+    assert b'href="/login"' in response.data
+    assert b'href="/logout"' not in response.data
+    # confirm the nav bar changes after login
+    assert client.post("/login", data={"email": "admin2@mail.com", "password": "Test123"}).status_code == 302
+    loginresponse = client.get("/")
+    assert b'href="/logout"' in loginresponse.data
+    assert b'href="/register"' not in loginresponse.data
+
+
+def test_logout(client):
+    with client:
+        response = client.post("/login", data={"email": "admin2@mail.com", "password": "Test123"})
+        assert "/about" == response.headers["Location"]
+        with client.application.app_context():
+            user_id = User.query.filter_by(email="admin2@mail.com").first().get_id()
+        assert session['_user_id'] == user_id
+        assert client.get("/logout").status_code == 302
+
+
+def test_access_denied(client):
+    assert client.post("/login", data={"email": "admin2@mail.com", "password": "Test123"}).status_code == 302
+    assert client.get("/users").status_code == 403
+
