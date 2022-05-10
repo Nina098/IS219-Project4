@@ -17,7 +17,7 @@ def test_request_register(client):
 
 def test_register(client):
     assert client.get("/register").status_code == 200
-    response = client.post("/register", data={"email": "admin2@mail.com", "password": "Test123", "confirm": "Test123"})
+    response = client.post("/register", data={"email": "admin2@mail.com", "password": "Test123!", "confirm": "Test123!"})
     with client.application.app_context():
         user_id = User.query.filter_by(email="admin2@mail.com").first().get_id()
     # check if the user is redirected properly
@@ -29,8 +29,8 @@ def test_register(client):
 def test_login(client):
     with client:
         assert client.get("/login").status_code == 200
-        response = client.post("/login", data={"email": "admin2@mail.com", "password": "Test123"})
-        assert "/about" == response.headers["Location"]
+        response = client.post("/login", data={"email": "admin2@mail.com", "password": "Test123!"})
+        assert "/recipes/mine" == response.headers["Location"]
         with client.application.app_context():
             user_id = User.query.filter_by(email="admin2@mail.com").first().get_id()
         assert session['_user_id'] == user_id
@@ -82,7 +82,7 @@ def test_already_registered(client):
     with client:
         assert client.get("/register").status_code == 200
         response = client.post("/register",
-                               data={"email": "admin@mail.com", "password": "Test123", "confirm": "Test123"})
+                               data={"email": "admin@mail.com", "password": "Test123!", "confirm": "Test123!"})
         # The user should now be redirected back to the registration
         assert "/login" == response.headers["Location"]
 
@@ -93,7 +93,7 @@ def test_navbar(client):
     assert b'href="/login"' in response.data
     assert b'href="/logout"' not in response.data
     # confirm the nav bar changes after login
-    assert client.post("/login", data={"email": "admin2@mail.com", "password": "Test123"}).status_code == 302
+    assert client.post("/login", data={"email": "admin2@mail.com", "password": "Test123!"}).status_code == 302
     loginresponse = client.get("/")
     assert b'href="/logout"' in loginresponse.data
     assert b'href="/register"' not in loginresponse.data
@@ -101,8 +101,8 @@ def test_navbar(client):
 
 def test_logout(client):
     with client:
-        response = client.post("/login", data={"email": "admin2@mail.com", "password": "Test123"})
-        assert "/about" == response.headers["Location"]
+        response = client.post("/login", data={"email": "admin2@mail.com", "password": "Test123!"})
+        assert "/recipes/mine" == response.headers["Location"]
         with client.application.app_context():
             user_id = User.query.filter_by(email="admin2@mail.com").first().get_id()
         assert session['_user_id'] == user_id
@@ -110,6 +110,6 @@ def test_logout(client):
 
 
 def test_access_denied(client):
-    assert client.post("/login", data={"email": "admin2@mail.com", "password": "Test123"}).status_code == 302
+    assert client.post("/login", data={"email": "admin2@mail.com", "password": "Test123!"}).status_code == 302
     assert client.get("/users").status_code == 403
 
