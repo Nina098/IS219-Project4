@@ -56,6 +56,13 @@ class Recipe(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     users = db.relationship("User", back_populates="recipes", uselist=False)
 
-    def __init__(self, title, content):
+    def __init__(self, title, content, user_id):
         self.title = title
         self.content = content
+        self.user_id = user_id
+
+    def get_id(self):
+        return self.id
+
+    def get_title(self):
+        return self.title

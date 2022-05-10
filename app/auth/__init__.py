@@ -14,7 +14,7 @@ auth = Blueprint('auth', __name__, template_folder='templates')
 def login():
     loginform = LoginForm()
     if current_user.is_authenticated:
-        return redirect(url_for('simple_pages.about'))
+        return redirect(url_for('recipes.my_recipes'))
     if loginform.validate_on_submit():
         user = User.query.filter_by(email=loginform.email.data).first()
         if user is None or not user.check_password(loginform.password.data):
@@ -26,7 +26,7 @@ def login():
             db.session.commit()
             login_user(user)
             flash('Welcome!', 'success')
-            return redirect(url_for('simple_pages.about'))
+            return redirect(url_for('recipes.my_recipes'))
     return render_template('login.html', form=loginform)
 
 
@@ -34,7 +34,7 @@ def login():
 def register():
     registerform = RegisterForm()
     if current_user.is_authenticated:
-        return redirect(url_for('simple_pages.about'))
+        return redirect(url_for('recipes.my_recipes'))
     if registerform.validate_on_submit():
         user = User.query.filter_by(email=registerform.email.data).first()
         if user is None:

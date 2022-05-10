@@ -13,7 +13,7 @@ from app.db import db
 from app.db.models import User
 from app import simple_pages
 from app import auth
-
+from app import recipes
 
 login_manager = flask_login.LoginManager()
 
@@ -41,6 +41,7 @@ def create_app():
     login_manager.init_app(app)
     app.register_blueprint(simple_pages.simple_pages)
     app.register_blueprint(auth.auth)
+    app.register_blueprint(recipes.recipes)
     app.register_error_handler(404, page_not_found)
     app.register_error_handler(401, access_denied)
     app.register_error_handler(403, access_denied_admin)
